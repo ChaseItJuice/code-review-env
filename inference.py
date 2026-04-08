@@ -38,14 +38,14 @@ def main():
     step_num = 0
 
     print(json.dumps({
-        "event": "[START]",
-        "task_id": obs.task_id,
-        "broken_query": obs.broken_query,
-        "schema": obs.schema
-    }))
+    "event": "[START]",
+    "task_id": obs.task_id,
+    "broken_query": obs.broken_query,
+    "schema": obs.db_schema
+}))
 
     while obs.task_id != "done":
-        fixed_query = ask_llm(obs.broken_query, obs.schema, obs.hint)
+        fixed_query = ask_llm(obs.broken_query, obs.db_schema, obs.hint)
 
         action = CodeReviewAction(fixed_query=fixed_query)
         result = env.step(action)
