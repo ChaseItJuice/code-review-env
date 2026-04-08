@@ -1,24 +1,20 @@
 import sqlite3
-from openenv import core
-Environment = core.Environment
-Action = core.Action
-Observation = core.Observation
-State = core.State
+from pydantic import BaseModel
 
 
-class CodeReviewAction(Action):
+class CodeReviewAction(BaseModel):
     fixed_query: str
 
 
-class CodeReviewObservation(Observation):
+class CodeReviewObservation(BaseModel):
     task_id: str
     broken_query: str
-    schema: str
+    db_schema: str
     hint: str
     expected_output: str
 
 
-class CodeReviewState(State):
+class CodeReviewState(BaseModel):
     current_task: int
     total_tasks: int
     score: float
@@ -28,8 +24,7 @@ TASKS = [
     {
         "id": "easy_1",
         "broken_query": "SELEC * FROM employees",
-        "fixed_query": "SELECT * FROM employees",
-        "schema": "employees(id INTEGER, name TEXT, salary REAL, dept_id INTEGER)",
+        "db_schema": "employees(id INTEGER, name TEXT, salary REAL, dept_id INTEGER)",
         "hint": "Check for typos in the SQL keyword",
         "expected_output": "[(1, 'Alice', 50000.0, 1), (2, 'Bob', 60000.0, 1), (3, 'Carol', 45000.0, 2)]",
         "difficulty": "easy"
@@ -37,8 +32,7 @@ TASKS = [
     {
         "id": "medium_1",
         "broken_query": "SELECT name, salary FROM employees WHERE salary > 55000 ORDER name",
-        "fixed_query": "SELECT name, salary FROM employees WHERE salary > 55000 ORDER BY name",
-        "schema": "employees(id INTEGER, name TEXT, salary REAL, dept_id INTEGER)",
+        "db_schema": "employees(id INTEGER, name TEXT, salary REAL, dept_id INTEGER)",
         "hint": "ORDER clause is missing a keyword",
         "expected_output": "[('Bob', 60000.0)]",
         "difficulty": "medium"
@@ -46,8 +40,7 @@ TASKS = [
     {
         "id": "hard_1",
         "broken_query": "SELECT d.name, COUNT(e.id) FROM employees e JOIN department d ON e.dept_id = d.id GROUP e.dept_id",
-        "fixed_query": "SELECT d.name, COUNT(e.id) FROM employees e JOIN department d ON e.dept_id = d.id GROUP BY e.dept_id",
-        "schema": "employees(id INTEGER, name TEXT, salary REAL, dept_id INTEGER), department(id INTEGER, name TEXT)",
+        "db_schema": "employees(id INTEGER, name TEXT, salary REAL, dept_id INTEGER), department(id INTEGER, name TEXT)",
         "hint": "GROUP clause is missing a keyword",
         "expected_output": "[('Engineering', 2), ('HR', 1)]",
         "difficulty": "hard"
@@ -55,7 +48,7 @@ TASKS = [
 ]
 
 
-class CodeReviewEnv(Environment):
+class CodeReviewEnv:
     def __init__(self):
         self.current_task = 0
         self.score = 0.0
@@ -74,7 +67,7 @@ class CodeReviewEnv(Environment):
         conn.commit()
         return conn
 
-    def reset(self, **kwargs):
+    def reset(self):
         self.current_task = 0
         self.score = 0.0
         self.db = self._setup_db()
@@ -82,12 +75,12 @@ class CodeReviewEnv(Environment):
         return CodeReviewObservation(
             task_id=task["id"],
             broken_query=task["broken_query"],
-            schema=task["schema"],
+            db_schema=task["db_schema"],
             hint=task["hint"],
             expected_output=task["expected_output"]
         )
 
-    def step(self, action):
+    def step(self, action: CodeReviewAction):
         task = TASKS[self.current_task]
         reward = self._grade(action.fixed_query, task)
         self.score += reward
@@ -97,7 +90,7 @@ class CodeReviewEnv(Environment):
             obs = CodeReviewObservation(
                 task_id="done",
                 broken_query="",
-                schema="",
+                db_schema="",
                 hint="All tasks completed!",
                 expected_output=""
             )
@@ -106,7 +99,7 @@ class CodeReviewEnv(Environment):
             obs = CodeReviewObservation(
                 task_id=next_task["id"],
                 broken_query=next_task["broken_query"],
-                schema=next_task["schema"],
+                db_schema=next_task["db_schema"],
                 hint=next_task["hint"],
                 expected_output=next_task["expected_output"]
             )
