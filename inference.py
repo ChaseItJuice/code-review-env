@@ -4,9 +4,9 @@ import asyncio
 from openai import OpenAI
 from src.env import CodeReviewEnv, CodeReviewAction
 
-API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.groq.com/openai/v1")
-MODEL_NAME = os.environ.get("MODEL_NAME", "llama-3.3-70b-versatile")
-HF_TOKEN = os.environ.get("HF_TOKEN", "")
+API_BASE_URL = os.environ.get("API_BASE_URL", "<your-active-api-base>")
+MODEL_NAME = os.environ.get("MODEL_NAME", "<your-active-model>")
+HF_TOKEN = os.environ.get("HF_TOKEN")
 
 client = OpenAI(
     base_url=API_BASE_URL,
