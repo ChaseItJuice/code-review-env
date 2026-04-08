@@ -1,5 +1,9 @@
 import sqlite3
-from openenv.core import Environment, Action, Observation, State
+from openenv import core
+Environment = core.Environment
+Action = core.Action
+Observation = core.Observation
+State = core.State
 
 
 class CodeReviewAction(Action):
