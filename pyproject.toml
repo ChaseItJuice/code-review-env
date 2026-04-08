@@ -8,7 +8,11 @@ dependencies = [
     "uvicorn",
     "pydantic",
     "openai",
+    "openenv>=0.1.13",
 ]
+
+[project.scripts]
+server = "server.app:app"
 
 [build-system]
 requires = ["setuptools"]
