@@ -1,0 +1,45 @@
+	name: code-review-env
+version: "1.0.0"
+description: "An RL environment where an AI agent debugs and fixes broken SQL queries across easy, medium, and hard difficulty levels."
+author: "Bhavesh"
+
+environment:
+  module: src.env
+  class: CodeReviewEnv
+
+action:
+  class: CodeReviewAction
+  fields:
+    fixed_query:
+      type: string
+      description: "The corrected SQL query"
+
+observation:
+  class: CodeReviewObservation
+  fields:
+    task_id:
+      type: string
+    broken_query:
+      type: string
+    schema:
+      type: string
+    hint:
+      type: string
+    expected_output:
+      type: string
+
+tasks:
+  - id: easy_1
+    difficulty: easy
+    description: "Fix a typo in a basic SELECT statement"
+  - id: medium_1
+    difficulty: medium
+    description: "Fix a missing keyword in an ORDER BY clause"
+  - id: hard_1
+    difficulty: hard
+    description: "Fix a missing keyword in a GROUP BY clause with JOIN"
+
+reward:
+  min: 0.0
+  max: 1.0
+  description: "1.0 for correct output, 0.3 for partial fix, 0.0 for no change or error"
