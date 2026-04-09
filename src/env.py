@@ -116,12 +116,12 @@ class CodeReviewEnv:
             cur.execute(fixed_query)
             result = str(cur.fetchall())
             if result == task["expected_output"]:
-                return 1.0
+                return 0.9
             elif fixed_query.strip().upper() != task["broken_query"].strip().upper():
                 return 0.3
-            return 0.0
+            return 0.1
         except Exception:
-            return 0.0
+            return 0.1
 
     def state(self):
         return CodeReviewState(
